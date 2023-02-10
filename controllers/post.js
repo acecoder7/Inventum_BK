@@ -8,7 +8,7 @@ export const createPost = async (req,res) => {
     try{
       const newPostData = {
         ach_caption: req.body.ach_caption,
-        owner: req.user.id,
+        owner: req.user._id,
         image: req.body.image,
         domain: req.body.domain,
         category: req.body.category,
@@ -16,7 +16,7 @@ export const createPost = async (req,res) => {
   
       const post = await Post.create(newPostData);
   
-      const user = await User.findById(req.user.id);
+      const user = await User.findById(req.user._id);
   
       user.ach_posts.unshift(post._id);
   

@@ -1,7 +1,7 @@
 import express from "express";
 import {
   createFund,
-  deleteFund,c,
+  deleteFund,
   getallFunds,
 } from "../controllers/fund.js";
 import { getallIdeaFeed } from "../controllers/idea.js";

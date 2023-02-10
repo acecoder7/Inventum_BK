@@ -13,6 +13,8 @@ import {
   getMyFund,
   getUserPosts,
   sendCollaborationRequest,
+  getCollaborationRequestSent,
+  getCollaborationRequestRec,
   handleCollaborationRequest,
 } from "../controllers/user.js";
 import { isAuthenticated } from "../utils/Auth.js";
@@ -23,9 +25,9 @@ router.put("/update/password", isAuthenticated, updatePassword);
 
 router.put("/update/profile", isAuthenticated, updateProfile);
 
-router.put("/add/role", isAuthenticated, addRole);
+router.post("/add/role", isAuthenticated, addRole);
 
-router.update("/update/role/:rid", isAuthenticated, updateRole);
+router.put("/update/role/:rid", isAuthenticated, updateRole);
 
 router.delete("/delete/role/:rid", isAuthenticated, deleteRole);
 
@@ -43,7 +45,11 @@ router.get("/user/:id", isAuthenticated, getUserProfile);
 
 router.get("/users", isAuthenticated, getAllUsers);
 
-router.put("/collab/req/:id", isAuthenticated, sendCollaborationRequest);
+router.post("/collab/req/:id", isAuthenticated, sendCollaborationRequest);
+
+router.get("/collab/reqsent", isAuthenticated, getCollaborationRequestSent);
+
+router.get("/collab/reqrec", isAuthenticated, getCollaborationRequestRec);
 
 router.put("/handle/collab/req/:id", isAuthenticated, handleCollaborationRequest);
 

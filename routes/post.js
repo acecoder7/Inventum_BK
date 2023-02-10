@@ -20,7 +20,7 @@ router.put("/like/:id",isAuthenticated, likeUnlikePost);
 
 router.put("/update/post/:id",isAuthenticated, updatePostDesc);
 
-router.put("/comment/:id",isAuthenticated, commentOnPost);
+router.post("/comment/:id",isAuthenticated, commentOnPost);
 
 router.delete("/delete/comment/:id",isAuthenticated, deleteComment);
 

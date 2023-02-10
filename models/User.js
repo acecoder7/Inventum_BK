@@ -51,6 +51,8 @@ const UserSchema = new mongoose.Schema(
     ],
     experience: {
       type: String,
+      enum: ["Alpha", "Beta", "Gamma"],
+      //required: [true, "Please mention your experience level"],
     },
     qualification: {
       type: String,
@@ -101,7 +103,7 @@ const UserSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-    collaborations: [
+    collaboration_sent: [
       {
         collaboratorId: {
           type: mongoose.Schema.Types.ObjectId,
@@ -117,7 +119,24 @@ const UserSchema = new mongoose.Schema(
         }
       }
     ],
-    
+    collaboration_receive: [
+      {
+        collaboratorId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        status: {
+          type: String,
+          enum: ["PENDING", "APPROVED", "REJECTED"],
+          default: "PENDING"
+        },
+        message: {
+          type: String
+        }
+      }
+    ],
+
+
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },

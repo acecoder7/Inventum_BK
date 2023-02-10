@@ -9,6 +9,7 @@ export const createIdeaFeed = async (req,res) => {
       const newPostData = {
         feed: req.body.feed,
         category: req.body.category,
+        owner:req.user._id
       };
   
       const post = await Idea.create(newPostData);

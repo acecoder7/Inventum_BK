@@ -273,7 +273,7 @@ export const deleteMyProfile = async (req, res) => {
 export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).populate(
-      "ach_posts network_followers network_following"
+      "ach_posts"
     );
 
     if (!user) {
@@ -322,8 +322,8 @@ export const getMyPost = async (req, res) => {
 
     const posts = [];
 
-    for (let i = 0; i < user.posts.length; i++) {
-      const post = await Post.findById(user.posts[i]).populate(
+    for (let i = 0; i < user.ach_posts.length; i++) {
+      const post = await Post.findById(user.ach_posts[i]).populate(
         "likes comments.user owner"
       );
       posts.push(post);
@@ -420,6 +420,52 @@ export const getUserPosts = async (req, res) => {
   }
 };
 
+
+//Get my received collaboration requests
+export const getCollaborationRequestRec = async(req,res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    return res.status(200).json({
+        success: true,
+        data: user.collaboration_receive ,
+    });
+  } catch (error) {
+    res.status(500).json({
+        success: false,
+        message: error.message,
+    });
+  }
+}
+
+
+//Get my sent collaboration requests
+export const getCollaborationRequestSent = async(req,res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    // const posts = [];
+
+    // for (let i = 0; i < user.collaboration_sent.length; i++) {
+    //   const post = await User.findById(user.collaboration_sent[i]);
+    //   console.log(post);
+    //   posts.push(post);
+    //   //console.log(user.collaboration_sent[i]);
+    // }
+
+    return res.status(200).json({
+        success: true,
+        data: user.collaboration_sent ,
+    });
+  } catch (error) {
+    res.status(500).json({
+        success: false,
+        message: error.message,
+    });
+  }
+}
+
+
+
 //Send Collaboration Request
 export const sendCollaborationRequest = async (req, res) => {
   try {
@@ -431,23 +477,29 @@ export const sendCollaborationRequest = async (req, res) => {
     }
 
     // Check if collaboration request has already been sent
-    const collaborationExists = sender.collaborations.find(
+    const collaborationExists = sender.collaboration_sent.find(
       (collaboration) => collaboration.collaboratorId.toString() === receiver
     );
 
     if (collaborationExists) {
-      return res.status(400).json({
+        return res.status(400).json({
         success: false,
         message: "Collaboration request has already been sent",
       });
     }
 
-    const collaboration = {
+    const collaboration_sent = {
       collaboratorId: receiver,
-      message: message,
+      message: req.body.message,
     };
-    sender.collaborations.push(collaboration);
+    const collaboration_rec = {
+      collaboratorId: sender,
+      message: req.body.message,
+    };
+    sender.collaboration_sent.push(collaboration_sent);
+    receiver.collaboration_receive.push(collaboration_rec);
     await sender.save();
+    await receiver.save();
 
     res.status(200).json({
       success: true,
@@ -464,18 +516,19 @@ export const sendCollaborationRequest = async (req, res) => {
 //Accept or Reject Collaboration Request
 export const handleCollaborationRequest = async (req, res) => {
   try {
-    const receiver = await User.findById(req.user._id).populate(
-      "collaborations"
-    );
-    const collaboratorId = await User.findById(req.params.id);
+    const receiver = await User.findById(req.user._id);
+    const collaboratorIdS = await User.findById(req.params.id);
 
     if (!receiver) {
       throw new Error("Receiver not found");
     }
 
-    const collaborationIndex = receiver.collaborations.findIndex(
+    //console.log(receiver.collaboration_receive[0].collaboratorId.toString());
+    //console.log(collaboratorIdS);
+
+    const collaborationIndex = receiver.collaboration_receive.findIndex(
       (collaboration) =>
-        collaboration.collaboratorId.toString() === collaboratorId.toString() &&
+        collaboration.collaboratorId.toString() === collaboratorIdS._id.toString() &&
         collaboration.status === "PENDING"
     );
 
@@ -483,7 +536,7 @@ export const handleCollaborationRequest = async (req, res) => {
       throw new Error("Collaboration request not found or already handled");
     }
 
-    receiver.collaborations[collaborationIndex].status = req.body.status;
+    receiver.collaboration_receive[collaborationIndex].status = req.body.status;
     await receiver.save();
 
     res.status(200).json({
@@ -492,7 +545,10 @@ export const handleCollaborationRequest = async (req, res) => {
       receiver,
     });
   } catch (error) {
-    return { success: false, error: error.message };
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 

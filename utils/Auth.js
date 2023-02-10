@@ -15,7 +15,7 @@ export const isAuthenticated = async (req, res, next) => {
     }
     const token = cookie
       .split(";")
-      .find((c) => c.trim().startsWith("halloffame="));
+      .find((c) => c.trim().startsWith("inventum="));
 
     if (!token) {
       return res.status(401).json({
